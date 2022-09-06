@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections;
 #if ENABLE_INPUT_SYSTEM && STARTER_ASSETS_PACKAGES_CHECKED
 using UnityEngine.InputSystem;
 #endif
@@ -120,6 +121,7 @@ namespace StarterAssets
 			JumpAndGravity();
 			GroundedCheck();
 			Move();
+			Tackle();
 		}
 
 		private void LateUpdate()
@@ -134,6 +136,27 @@ namespace StarterAssets
 			_animIDJump = Animator.StringToHash("Jump");
 			_animIDFreeFall = Animator.StringToHash("FreeFall");
 			_animIDMotionSpeed = Animator.StringToHash("MotionSpeed");
+		}
+
+		private void Tackle()
+        {
+            if (_hasAnimator)
+            {
+				_animator.SetBool("Tackle", _input.tackle);
+				if(_input.tackle == true)
+                {
+					float tacklingend = _animator.GetCurrentAnimatorStateInfo(0).length;
+					StartCoroutine(StopTackle(tacklingend));
+				}
+            }
+        }
+		
+		IEnumerator StopTackle(float delay)
+        {
+			yield return new WaitForSeconds(delay);
+			_input.tackle = false;
+			GetComponent<Player>().tackling = false;
+			GetComponent<Player>().hitsomeone = false;
 		}
 
 		private void GroundedCheck()

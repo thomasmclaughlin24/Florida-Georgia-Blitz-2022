@@ -12,6 +12,7 @@ namespace StarterAssets
 		public Vector2 look;
 		public bool jump;
 		public bool sprint;
+		public bool tackle;
 
 		[Header("Movement Settings")]
 		public bool analogMovement;
@@ -45,6 +46,11 @@ namespace StarterAssets
 		{
 			SprintInput(value.isPressed);
 		}
+
+		public void OnTackle(InputValue value){
+			TackleInput(value.isPressed);
+			GetComponent<Player>().tackling = true;
+		}
 #else
 	// old input sys if we do decide to have it (most likely wont)...
 #endif
@@ -69,6 +75,11 @@ namespace StarterAssets
 		{
 			sprint = newSprintState;
 		}
+
+		public void TackleInput(bool newTackleState)
+        {
+			tackle = newTackleState;
+        }
 
 #if !UNITY_IOS || !UNITY_ANDROID
 

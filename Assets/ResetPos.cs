@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using StarterAssets;
 
 public class ResetPos : MonoBehaviour
 {
@@ -16,8 +17,35 @@ public class ResetPos : MonoBehaviour
     {
         if(transform.position.y < -1)
         {
-            transform.position = startpos;
+            Reset();
+        }
+    }
+
+    public void Reset()
+    {
+        StartCoroutine("resetCoRoutine");
+    } 
+    IEnumerator resetCoRoutine()
+    {
+        var tpc = GetComponent<ThirdPersonController>();
+        var cc = GetComponent<CharacterController>();
+        if (tpc)
+        {
+            tpc.enabled = false;
+            cc.enabled = false;
+        }
+        yield return null;
+        transform.position = startpos;
+        yield return null;
+        if (GetComponent<Rigidbody>())
+        {
             GetComponent<Rigidbody>().velocity = Vector3.zero;
+            Debug.Log("Something");
+        }
+        if (tpc)
+        {
+            tpc.enabled = true;
+            cc.enabled = true;
         }
     }
 }
