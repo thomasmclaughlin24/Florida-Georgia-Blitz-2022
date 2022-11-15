@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using StarterAssets;
 
 public class Player : MonoBehaviour
 {
@@ -12,16 +13,24 @@ public class Player : MonoBehaviour
     internal Animator animator;
     internal bool stopped = false;
     internal bool hitsomeone = false;
+    public int startPlayZ = 22;
+    private ThirdPersonController tpc;
+    internal int id = 0;
+
     // Start is called before the first frame update
     void Start()
     {
         animator = GetComponent<Animator>();
+        tpc = GetComponent<ThirdPersonController>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        if (tpc)
+        {
+            tpc.stopmove = stopped;
+        }
     }
 
     void OnTriggerEnter(Collider other)
@@ -29,11 +38,9 @@ public class Player : MonoBehaviour
         Player otherPlayer = other.GetComponent<Player>();
         if (otherPlayer)
         {
-            Debug.Log("Collided");
             if(otherPlayer.tackling == true && otherPlayer.hitsomeone == false)
             {
                 otherPlayer.hitsomeone = true;
-                Debug.Log("I'm hit!");
                 if(pm.playerWithBall == this)
                 {
                     hasball = false;
@@ -58,5 +65,10 @@ public class Player : MonoBehaviour
     void GetUp()
     {
         stopped = false;
+    }
+
+    public virtual void StartPlay()
+    {
+
     }
 }

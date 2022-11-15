@@ -92,6 +92,9 @@ namespace StarterAssets
 
 		private bool _hasAnimator;
 
+		private GameManager gm;
+		internal bool stopmove = false;
+
 		private void Awake()
 		{
 			// get a reference to our main camera
@@ -106,6 +109,7 @@ namespace StarterAssets
 			_hasAnimator = TryGetComponent(out _animator);
 			_controller = GetComponent<CharacterController>();
 			_input = GetComponent<StarterAssetsInputs>();
+			gm = GameObject.Find("GameManager").GetComponent<GameManager>();
 
 			AssignAnimationIDs();
 
@@ -116,17 +120,24 @@ namespace StarterAssets
 
 		private void Update()
 		{
-			_hasAnimator = TryGetComponent(out _animator);
-			
-			JumpAndGravity();
-			GroundedCheck();
-			Move();
-			Tackle();
+            if (!gm.paused)
+            {
+				_hasAnimator = TryGetComponent(out _animator);
+
+				JumpAndGravity();
+				GroundedCheck();
+                if (!stopmove)
+                {
+					Move();
+				}
+				Tackle();
+			}
 		}
 
 		private void LateUpdate()
 		{
-			CameraRotation();
+            if (!gm.paused)
+				CameraRotation();
 		}
 
 		private void AssignAnimationIDs()

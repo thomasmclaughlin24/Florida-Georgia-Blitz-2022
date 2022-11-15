@@ -5,11 +5,13 @@ using StarterAssets;
 
 public class ResetPos : MonoBehaviour
 {
-    private Vector3 startpos;
+    internal Vector3 startpos;
+    internal Quaternion startrot;
     // Start is called before the first frame update
     void Start()
     {
         startpos = transform.position;
+        startrot = transform.rotation;
     }
 
     // Update is called once per frame
@@ -29,6 +31,7 @@ public class ResetPos : MonoBehaviour
     {
         var tpc = GetComponent<ThirdPersonController>();
         var cc = GetComponent<CharacterController>();
+        var ai = GetComponent<AIPlayer>();
         if (tpc)
         {
             tpc.enabled = false;
@@ -36,16 +39,20 @@ public class ResetPos : MonoBehaviour
         }
         yield return null;
         transform.position = startpos;
+        transform.rotation = startrot;
         yield return null;
         if (GetComponent<Rigidbody>())
         {
             GetComponent<Rigidbody>().velocity = Vector3.zero;
-            Debug.Log("Something");
         }
         if (tpc)
         {
             tpc.enabled = true;
             cc.enabled = true;
+        }
+        if (ai)
+        {
+            ai.agent.destination = startpos;
         }
     }
 }

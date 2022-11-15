@@ -25,7 +25,10 @@ public class WallReset : MonoBehaviour
             football.GetComponent<ResetPos>().Reset();
             football.GetComponent<Rigidbody>().isKinematic = false;
             football.transform.parent = null;
-            pm.playerWithBall.hasball = false;
+            if (pm.playerWithBall)
+            {
+                pm.playerWithBall.hasball = false;
+            }
             pm.playerWithBall = null;
         }
     }
