@@ -7,6 +7,7 @@ public class GameManager : MonoBehaviour
 {
     public bool paused = false;
     public ThirdPersonController player;
+    public PlayerManager pm;
     // Start is called before the first frame update
     void Start()
     {

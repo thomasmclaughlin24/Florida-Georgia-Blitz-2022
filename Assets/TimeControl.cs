@@ -29,6 +29,10 @@ public class TimeControl : MonoBehaviour
             timetext.text = (int)(timeleft / 60) + ":" + ((int)(timeleft % 60)).ToString("00");
             if (timeleft <= 0)
             {
+                Cursor.visible = true;
+                Cursor.lockState = CursorLockMode.None;
+                PlayerPrefs.SetInt("bluescore", gm.pm.team1score);
+                PlayerPrefs.SetInt("redscore", gm.pm.team2score);
                 SceneManager.LoadScene("Game Over");
             }
         }

@@ -27,7 +27,7 @@ public class Pickup : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Vector3.Distance(football.transform.position, player.transform.position) < range && !PlayerInfo.hasball && Time.time - pm.TimeSinceThrow > cooldown){
+        if(Vector3.Distance(football.transform.position, player.transform.position) < range && pm.playerWithBall == null && Time.time - pm.TimeSinceThrow > cooldown){
             PickupBall();
 	    }
     }

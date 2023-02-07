@@ -7,6 +7,8 @@ public class Touchdown : MonoBehaviour
 {
     public PlayerManager playerManager;
     public bool isTeam1 = false;
+    public AudioSource floridaSource;
+    public AudioSource georgiaSource;
     // Start is called before the first frame update
     void Start()
     {
@@ -30,11 +32,13 @@ public class Touchdown : MonoBehaviour
             }
             if (Array.IndexOf(playerManager.team1, player) > -1 && isTeam1 == true)
             {
+                floridaSource.Play();
                 playerManager.team1score += 7;
                 playerManager.Reset();
             }
             if (Array.IndexOf(playerManager.team2, player) > -1 && isTeam1 == false)
             {
+                georgiaSource.Play();
                 playerManager.team2score += 7;
                 playerManager.Reset();
             }

@@ -5,21 +5,23 @@ using UnityEngine.AI;
 
 public class AIPlayer : Player
 {
-    private GameManager gm;
     public Transform football;
     public NavMeshAgent agent;
     public float tackledist = 5f;
     private Player[] otherTeam;
     private Player[] myTeam;
     private Transform myGoal;
-    private bool onOffense = false;
-    private Vector3 startpos;
     public float catchdist = 10f;
-
+    private float timeOfLastReset = 0f;
+    public float throwDist = 10f;
+    private float timeOfLastThrow = 0f;
+    public Vector3 staticdest;
+    private bool started = false;
     // Start is called before the first frame update
     void Start()
     {
-        startpos = GetComponent<ResetPos>().startpos;
+        startpos = transform.position;
+        startrot = transform.rotation;
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
         gm = GameObject.Find("GameManager").GetComponent<GameManager>();
@@ -43,7 +45,7 @@ public class AIPlayer : Player
             agent.velocity = Vector3.zero;
             agent.destination = transform.position;
         }
-        else
+        else if(started == true)
         {
             float speed = (new Vector3(agent.velocity.x, 0f, agent.velocity.z)).magnitude;
             animator.SetFloat("Speed", speed);
@@ -56,8 +58,12 @@ public class AIPlayer : Player
             {
                 PassPlay();
             }
+            if(onOffense && pm.playerWithBall && pm.playerWithBall.teamname != teamname)
+            {
+                pm.Reset();
+            }
         }
-        startpos = new Vector3(startpos.x, startpos.y, transform.position.z);
+        //startpos = new Vector3(startpos.x, startpos.y, transform.position.z);
         if (stopped)
         {
             agent.velocity = Vector3.zero;
@@ -89,83 +95,169 @@ public class AIPlayer : Player
 
     public override void StartPlay()
     {
-        if (pm.playerWithBall && pm.playerWithBall.teamname == teamname)
-        {
-            onOffense = true;
-        }
-        else
-        {
-            onOffense = false;
-        }
+
         if (pm.currentplay == "Run")
         {
-            if(onOffense == true)
+            if (teamname == "Blue")
             {
-                transform.position = new Vector3(transform.position.x, transform.position.y, startPlayZ);
+                if (onOffense == true)
+                {
+                    startPlayZ = -20;
+                }
+                else
+                {
+                    startPlayZ = 15;
+                }
             }
-            else
+            if(teamname == "Red")
             {
-                transform.position = new Vector3(transform.position.x, transform.position.y, startPlayZ - 5);
+                if (onOffense == true)
+                {
+                    startPlayZ = 20;
+                }
+                else
+                {
+                    startPlayZ = -15;
+                }
             }
+            Reset();
         }
         if (pm.currentplay == "Short Pass")
         {
             if(onOffense == true)
             {
-                transform.position = new Vector3(transform.position.x, transform.position.y, startPlayZ);
-                if (id == 1)
+                if(teamname == "Blue")
                 {
-                    agent.destination = new Vector3(transform.position.x + 5f, transform.position.y, transform.position.z + 10f);
+                    startPlayZ = -20;
+                    Reset();
+                    if (id == 1)
+                    {
+                        staticdest = new Vector3(transform.position.x + 5f, transform.position.y, startPlayZ + 10f);
+                        Debug.Log("ID 1: " + staticdest);
+                    }
+                    if (id == 2)
+                    {
+                        staticdest = new Vector3(transform.position.x - 10f, transform.position.y, startPlayZ + 15f);
+                        Debug.Log("ID 2: " + staticdest);
+                    }
                 }
-                if (id == 2)
+                else if(teamname == "Red")
                 {
-                    agent.destination = new Vector3(transform.position.x - 10f, transform.position.y, transform.position.z + 15f);
+                    startPlayZ = 20;
+                    Reset();
+                    if (id == 1)
+                    {
+                        staticdest = new Vector3(transform.position.x + 5f, transform.position.y, startPlayZ - 10f);
+                    }
+                    if (id == 2)
+                    {
+                        staticdest = new Vector3(transform.position.x - 10f, transform.position.y, startPlayZ - 15f);
+                    }
                 }
             }
             else
             {
-                transform.position = new Vector3(transform.position.x, transform.position.y, startPlayZ + 12.5f);
+                if(teamname == "Blue")
+                {
+                    startPlayZ = 15;
+                }
+                else if(teamname == "Red")
+                {
+                    startPlayZ = -15;
+                }
+                Reset();
             }
-            
         }
         if(pm.currentplay == "Medium Pass")
         {
             if (onOffense == true)
             {
-                transform.position = new Vector3(transform.position.x, transform.position.y, startPlayZ);
-                if (id == 1)
+                if (teamname == "Blue")
                 {
-                    agent.destination = new Vector3(transform.position.x + 5f, transform.position.y, transform.position.z + 20f);
+                    startPlayZ = -20;
+                    Reset();
+                    if (id == 1)
+                    {
+                        staticdest = new Vector3(transform.position.x + 5f, transform.position.y, startPlayZ + 20f);
+                    }
+                    if (id == 2)
+                    {
+                        staticdest = new Vector3(transform.position.x - 10f, transform.position.y, startPlayZ + 25f);
+                    }
                 }
-                if (id == 2)
+                else if (teamname == "Red")
                 {
-                    agent.destination = new Vector3(transform.position.x - 10f, transform.position.y, transform.position.z + 20f);
+                    startPlayZ = 20;
+                    Reset();
+                    if (id == 1)
+                    {
+                        staticdest = new Vector3(transform.position.x + 5f, transform.position.y, startPlayZ - 20f);
+                    }
+                    if (id == 2)
+                    {
+                        staticdest = new Vector3(transform.position.x - 10f, transform.position.y, startPlayZ - 25f);
+                    }
                 }
             }
             else
             {
-                transform.position = new Vector3(transform.position.x, transform.position.y, startPlayZ + 15f);
+                if (teamname == "Blue")
+                {
+                    startPlayZ = 15;
+                }
+                else if (teamname == "Red")
+                {
+                    startPlayZ = -15;
+                }
+                Reset();
             }
         }
         if (pm.currentplay == "Deep Pass")
         {
             if (onOffense == true)
             {
-                transform.position = new Vector3(transform.position.x, transform.position.y, startPlayZ);
-                if (id == 1)
+                if (teamname == "Blue")
                 {
-                    agent.destination = new Vector3(transform.position.x + 5f, transform.position.y, transform.position.z + 30f);
+                    startPlayZ = -20;
+                    Reset();
+                    if (id == 1)
+                    {
+                        staticdest = new Vector3(transform.position.x + 5f, transform.position.y, startPlayZ + 30f);
+                    }
+                    if (id == 2)
+                    {
+                        staticdest = new Vector3(transform.position.x - 10f, transform.position.y, startPlayZ + 35f);
+                    }
                 }
-                if (id == 2)
+                else if (teamname == "Red")
                 {
-                    agent.destination = new Vector3(transform.position.x - 10f, transform.position.y, transform.position.z + 30f);
+                    startPlayZ = 20;
+                    Reset();
+                    if (id == 1)
+                    {
+                        staticdest = new Vector3(transform.position.x + 5f, transform.position.y, startPlayZ - 30f);
+                    }
+                    if (id == 2)
+                    {
+                        staticdest = new Vector3(transform.position.x - 10f, transform.position.y, startPlayZ - 35f);
+                    }
                 }
             }
             else
             {
-                transform.position = new Vector3(transform.position.x, transform.position.y, startPlayZ + 20f);
+                if (teamname == "Blue")
+                {
+                    startPlayZ = 15;
+                }
+                else if (teamname == "Red")
+                {
+                    startPlayZ = -15;
+                }
+                Reset();
             }
         }
+        timeOfLastReset = Time.time;
+        started = true;
     }
 
     private void RunPlay()
@@ -245,6 +337,7 @@ public class AIPlayer : Player
                 {
                     transform.LookAt(closestfriend.gameObject.transform);
                     GetComponent<AIthrow>().Throw(closestfriend.gameObject.transform);
+                    timeOfLastThrow = Time.time;
                 }
                 else
                 {
@@ -269,9 +362,7 @@ public class AIPlayer : Player
         Transform myGoal = pm.team2Goal;
         Player[] myTeam = pm.team2;
         Player closestfriend = null;
-        Player closestfoe = null;
         float closestDist = 1000f;
-        float foeClosestDist = 1000f;
         if (teamname == otherTeam[0].teamname)
         {
             otherTeam = pm.team2;
@@ -280,7 +371,7 @@ public class AIPlayer : Player
         }
         if (onOffense == true)
         {
-            if (pm.playerWithBall == null && Vector3.Distance(transform.position, football.transform.position) <= catchdist)
+            if (pm.playerWithBall == null && Vector3.Distance(transform.position, football.transform.position) <= catchdist && Time.time - timeOfLastThrow > 1f)
             {
                 Debug.Log("Catching Activated");
                 animator.SetBool("Catch", true);
@@ -288,23 +379,60 @@ public class AIPlayer : Player
                 StartCoroutine(StopCatch(catchingend));
                 GetComponent<Pickup>().PickupBall();
             }
-            if (id == 0)
+            if (pm.playerWithBall == this)
             {
-
-            }
-            if(id == 1)
-            {
-                if(pm.playerWithBall == this)
+                if(Time.time - timeOfLastReset >= 1)
                 {
-                    agent.destination = myGoal.position;
+                    Player ldf = null;
+                    float ldfDist = -1000f;
+                    Player myClosestFoe = null;
+                    foreach (Player friend in myTeam)
+                    {
+                        Player closestfoe = null;
+                        float foeClosestDist = 1000f;
+                        foreach (Player foe in otherTeam)
+                        {
+                            float dist = Vector3.Distance(friend.gameObject.transform.position, foe.gameObject.transform.position);
+                            if (dist < foeClosestDist)
+                            {
+                                closestfoe = foe;
+                                foeClosestDist = dist;
+                            }
+                        }
+                        if (foeClosestDist > ldfDist && Mathf.Abs(foeClosestDist - ldfDist) >= 1f && Vector3.Distance(transform.position, myGoal.position) >= Vector3.Distance(friend.transform.position, myGoal.position))
+                        {
+                            ldf = friend;
+                            ldfDist = foeClosestDist;
+                        }
+                        if(friend == this)
+                        {
+                            myClosestFoe = closestfoe;
+                        }
+                    }
+                    if(ldf == this)
+                    {
+                        var zmodifier = 1;
+                        if(transform.position.z < myClosestFoe.transform.position.z)
+                        {
+                            zmodifier = -1;
+                        }
+                        agent.destination = new Vector3(myGoal.position.x, myGoal.position.y, myGoal.position.z + 10f*zmodifier);
+                    }
+                    else
+                    {
+                        agent.destination = ldf.transform.position;
+                        if (Vector3.Distance(this.transform.position, ldf.transform.position) <= throwDist)
+                        {
+                            transform.LookAt(ldf.gameObject.transform);
+                            GetComponent<AIthrow>().Throw(ldf.gameObject.transform);
+                            timeOfLastThrow = Time.time;
+                        }
+                    }
                 }
             }
-            if(id == 2)
+            else
             {
-                if (pm.playerWithBall == this)
-                {
-                    agent.destination = myGoal.position;
-                }
+                agent.destination = staticdest;
             }
         }
         else
@@ -323,6 +451,9 @@ public class AIPlayer : Player
 
     private void RunForBall()
     {
-        agent.destination = football.position;
+        if (football.gameObject.GetComponent<Rigidbody>().velocity.y <= 0)
+        {
+            agent.destination = football.gameObject.GetComponent<Football>().getTarget();
+        }
     }
 }

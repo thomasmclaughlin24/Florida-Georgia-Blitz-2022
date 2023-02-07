@@ -10,7 +10,6 @@ public class AIthrow : MonoBehaviour
     private float v = 8f;
     public Transform player;
     private Player PlayerInfo;
-
     // Start is called before the first frame update
     void Start()
     {
@@ -36,6 +35,7 @@ public class AIthrow : MonoBehaviour
 
     public void Throw(Transform target)
     {
+        football.GetComponent<Football>().setTarget(target.position);
         pickuptime = 0f;
         football.GetComponent<Rigidbody>().isKinematic = false;
         football.transform.parent = null;
@@ -76,8 +76,18 @@ public class AIthrow : MonoBehaviour
     {
         Vector3 direction = (targetLocation - transform.position).normalized;
         float distance = Vector3.Distance(targetLocation, transform.position);
+        float initialv = FiringElevationVelocity(Physics.gravity.magnitude, distance, 45f);
         Vector3 velocity;
         do
+        {
+            float firingElevationAngle = 45f;
+            Vector3 elevation = Quaternion.AngleAxis(firingElevationAngle, transform.right) * transform.up;
+            float directionAngle = AngleBetweenAboutAxis(transform.forward, direction, transform.up);
+            velocity = Quaternion.AngleAxis(directionAngle, transform.up) * elevation * initialv;
+            initialv += 1f;
+        }
+        while (float.IsNaN(velocity.x + velocity.y + velocity.z));
+        /*do
         {
             float firingElevationAngle = FiringElevationAngle(Physics.gravity.magnitude, distance, v);
             Vector3 elevation = Quaternion.AngleAxis(firingElevationAngle, transform.right) * transform.up;
@@ -85,8 +95,9 @@ public class AIthrow : MonoBehaviour
             velocity = Quaternion.AngleAxis(directionAngle, transform.up) * elevation * v;
             v += 1f;
         }
-        while (float.IsNaN(velocity.x + velocity.y + velocity.z));
+        while (float.IsNaN(velocity.x + velocity.y + velocity.z));*/
         // ballGameObject is object to be thrown
+        Debug.Log(velocity);
         football.GetComponent<Rigidbody>().AddForce(velocity, ForceMode.VelocityChange);
     }
 
@@ -104,5 +115,11 @@ public class AIthrow : MonoBehaviour
     {
         float angle = 0.5f * Mathf.Asin((gravity * distance) / (initialVelocity * initialVelocity)) * Mathf.Rad2Deg;
         return angle;
+    }
+
+    private float FiringElevationVelocity(float gravity, float distance, float angle)
+    {
+        float velocity = Mathf.Sqrt((gravity*distance)/Mathf.Sin(angle/(0.5f*Mathf.Rad2Deg)));
+        return velocity;
     }
 }

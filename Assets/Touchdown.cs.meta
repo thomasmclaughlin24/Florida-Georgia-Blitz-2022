@@ -3,7 +3,12 @@ guid: 9f383af8914cbbe4b9b92dc5d2e57f17
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - playerManager: {instanceID: 0}
+  - floridaSource: {instanceID: 0}
+  - floridaSong: {fileID: 8300000, guid: da7b9d7c1cbbe0e4e9408c9e48ceb535, type: 3}
+  - georgiaSource: {instanceID: 0}
+  - georgiaSong: {fileID: 8300000, guid: 28f21bace95828146a38c020e488c7e8, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

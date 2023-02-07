@@ -47,13 +47,48 @@ public class Throwing : MonoBehaviour
 	    }
         else if(PlayerInfo.hasball == true && MouseDown)
         {
+            Debug.Log("Throwing");
             football.GetComponent<Rigidbody>().isKinematic = false;
             football.transform.parent = null;
-            football.GetComponent<Rigidbody>().AddForce(player.forward.normalized * throwforce + Vector3.up * throwforce);
+            Vector3 force = player.forward.normalized * throwforce + Vector3.up * throwforce;
+            var target = predictLandingPosition(force, football.GetComponent<Rigidbody>());
+            football.GetComponent<Football>().setTarget(target.position);
+            football.GetComponent<Rigidbody>().AddForce(force);
             PlayerInfo.hasball = false;
             PlayerInfo.pm.playerWithBall = null;
             throwforce = 0;
             MouseDown = false;
         }
+    }
+
+    Pose predictLandingPosition(Vector3 force, Rigidbody fbrb)
+    {
+        Pose target = new Pose(Vector3.zero, Quaternion.identity);
+        Physics.autoSimulation = false;
+        fbrb.AddForce(force);
+        Vector3 startpos = fbrb.position;
+        Quaternion startrot = fbrb.rotation;
+        float timeoutTime = 15f;
+        while (timeoutTime >= Time.fixedDeltaTime)
+        {
+            timeoutTime -= Time.fixedDeltaTime;
+            Physics.Simulate(Time.fixedDeltaTime);
+            target.position = fbrb.position;
+            target.rotation = fbrb.rotation;
+            if (target.position.y < 1f || Mathf.Approximately(target.position.y, 1f))
+            {
+                Physics.autoSimulation = true;
+                fbrb.velocity = Vector3.zero;
+                fbrb.transform.position = startpos;
+                fbrb.transform.rotation = startrot;
+                return target;
+            }
+        }
+        Physics.autoSimulation = true;
+        fbrb.velocity = Vector3.zero;
+        fbrb.transform.position = startpos;
+        fbrb.transform.rotation = startrot;
+        Debug.Log("Didnt Land");
+        return target;
     }
 }
